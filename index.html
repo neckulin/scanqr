@@ -6,7 +6,6 @@
     <title>QR Scanner iOS</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        /* Все стили остаются такими же, как в предыдущем коде */
         :root {
             --primary: #007AFF;
             --danger: #FF3B30;
@@ -469,17 +468,12 @@
                 setTimeout(() => {
                     try {
                         const newWindow = window.open(data, '_blank');
-                        // Проверяем, было ли окно успешно открыто
-                        if (newWindow === null || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                            // Если окно не открылось, показываем ошибку
+                        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                            // Не удалось открыть окно (может быть заблокировано браузером или popup-блокировщиком)
                             showErrorPopup("Не удалось открыть ссылку. Возможно, она заблокирована браузером.");
-                        } else {
-                            // Если окно открылось успешно, не показываем ошибку
-                            console.log("Ссылка успешно открыта");
                         }
                         stopScanner();
                     } catch (e) {
-                        // Если возникла ошибка при открытии, показываем попап
                         showErrorPopup("Произошла ошибка при открытии ссылки");
                         stopScanner();
                     }
@@ -611,7 +605,7 @@
             if (scanHistory[index].isUrl) {
                 try {
                     const newWindow = window.open(scanHistory[index].data, '_blank');
-                    if (newWindow === null || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                         showErrorPopup("Не удалось открыть ссылку. Возможно, она заблокирована браузером.");
                     }
                 } catch (e) {
