@@ -285,6 +285,17 @@
             color: var(--danger);
             font-weight: 600;
         }
+        
+        /* Error popup styles */
+        .error-popup .popup-title {
+            color: var(--danger);
+        }
+        
+        .error-popup .popup-btn-ok {
+            color: var(--primary);
+            font-weight: 600;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -329,6 +340,17 @@
             </div>
         </div>
     </div>
+    
+    <!-- iOS-style popup for URL open error -->
+    <div class="popup-overlay" id="errorPopup">
+        <div class="popup-container error-popup">
+            <div class="popup-title">Ошибка</div>
+            <div class="popup-message" id="errorPopupMessage">Не удалось открыть ссылку</div>
+            <div class="popup-actions">
+                <button class="popup-btn popup-btn-ok" id="okErrorBtn">OK</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // DOM элементы
@@ -344,6 +366,9 @@
         const deletePopup = document.getElementById('deletePopup');
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const errorPopup = document.getElementById('errorPopup');
+        const errorPopupMessage = document.getElementById('errorPopupMessage');
+        const okErrorBtn = document.getElementById('okErrorBtn');
         
         // Состояние приложения
         let stream = null;
@@ -364,6 +389,7 @@
             stopButton.addEventListener('click', stopScanner);
             cancelDeleteBtn.addEventListener('click', hideDeletePopup);
             confirmDeleteBtn.addEventListener('click', confirmDelete);
+            okErrorBtn.addEventListener('click', hideErrorPopup);
         }
         
         // Запуск сканера
@@ -440,10 +466,30 @@
             
             if (isValidUrl(data)) {
                 setTimeout(() => {
-                    window.open(data, '_blank');
-                    stopScanner();
+                    try {
+                        const newWindow = window.open(data, '_blank');
+                        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                            // Не удалось открыть окно (может быть заблокировано браузером или popup-блокировщиком)
+                            showErrorPopup("Не удалось открыть ссылку. Возможно, она заблокирована браузером.");
+                        }
+                        stopScanner();
+                    } catch (e) {
+                        showErrorPopup("Произошла ошибка при открытии ссылки");
+                        stopScanner();
+                    }
                 }, 800);
             }
+        }
+        
+        // Показать попап с ошибкой
+        function showErrorPopup(message) {
+            errorPopupMessage.textContent = message;
+            errorPopup.classList.add('active');
+        }
+        
+        // Скрыть попап с ошибкой
+        function hideErrorPopup() {
+            errorPopup.classList.remove('active');
         }
         
         // Добавление в историю
@@ -557,7 +603,14 @@
         // Открытие ссылки из истории
         function openHistoryItem(index) {
             if (scanHistory[index].isUrl) {
-                window.open(scanHistory[index].data, '_blank');
+                try {
+                    const newWindow = window.open(scanHistory[index].data, '_blank');
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                        showErrorPopup("Не удалось открыть ссылку. Возможно, она заблокирована браузером.");
+                    }
+                } catch (e) {
+                    showErrorPopup("Произошла ошибка при открытии ссылки");
+                }
             }
         }
         
@@ -605,6 +658,11 @@
         
         // Инициализация приложения
         init();
+        
+        // Глобальные функции для вызова из HTML
+        window.copyHistoryItem = copyHistoryItem;
+        window.openHistoryItem = openHistoryItem;
+        window.showDeletePopup = showDeletePopup;
     </script>
 </body>
 </html>
