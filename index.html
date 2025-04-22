@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacker Verifure Scanner</title>
+    <title>Pro QR Scanner</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #4CAF50;
-            --primary-hover: #45a049;
-            --danger-color: #f44336;
-            --danger-hover: #d32f2f;
-            --text-color: #333;
-            --light-color: #f5f5f5;
-            --dark-color: #222;
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary-color: #3f37c9;
+            --danger-color: #f72585;
+            --danger-hover: #e5177b;
+            --success-color: #4cc9f0;
+            --text-color: #2b2d42;
+            --light-color: #f8f9fa;
+            --dark-color: #1a1a2e;
             --overlay-color: rgba(0, 0, 0, 0.7);
-            --border-radius: 12px;
-            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            --transition: all 0.3s ease;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * {
@@ -27,92 +31,160 @@
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
             background-color: var(--light-color);
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .app-container {
             width: 100%;
             max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .app-header {
             padding: 20px;
-        }
-
-        /* Начальный экран */
-        .start-screen {
             text-align: center;
-            animation: fadeIn 0.5s ease;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            position: relative;
+            z-index: 10;
         }
 
-        .logo {
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        /* Start screen */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 120px);
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .scanner-icon {
             width: 120px;
             height: 120px;
-            margin: 0 auto 20px;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: white;
-            font-size: 48px;
-            font-weight: bold;
-            box-shadow: var(--box-shadow);
-        }
-
-        h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: var(--dark-color);
-        }
-
-        .description {
-            color: #666;
+            justify-content: center;
             margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
+        }
+
+        .scanner-icon i {
+            font-size: 50px;
+            color: white;
+        }
+
+        .start-title {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+
+        .start-description {
+            color: #666;
+            margin-bottom: 40px;
             font-size: 16px;
+            max-width: 350px;
         }
 
         .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            background-color: var(--primary-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 50px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
             width: 100%;
             max-width: 280px;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(1px);
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+
+        .btn .btn-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn .btn-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .btn.loading .btn-text {
+            opacity: 0;
+        }
+
+        .btn.loading .btn-loader {
+            opacity: 1;
         }
 
         .btn-danger {
-            background-color: var(--danger-color);
-            box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3);
+            background: linear-gradient(135deg, var(--danger-color), #b5179e);
+            box-shadow: 0 6px 15px rgba(247, 37, 133, 0.3);
         }
 
         .btn-danger:hover {
-            background-color: var(--danger-hover);
-            box-shadow: 0 6px 15px rgba(244, 67, 54, 0.4);
+            box-shadow: 0 10px 25px rgba(247, 37, 133, 0.4);
         }
 
-        /* Экран сканера */
+        /* Scanner screen */
         .scanner-screen {
             position: fixed;
             top: 0;
@@ -133,16 +205,45 @@
             padding: 20px;
             background-color: var(--overlay-color);
             color: white;
-            text-align: center;
             z-index: 1001;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .scanner-title {
             font-size: 20px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .scanner-title i {
+            margin-right: 10px;
+        }
+
+        .scanner-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
         }
 
         #video {
@@ -168,8 +269,8 @@
             width: 80%;
             max-width: 300px;
             aspect-ratio: 1;
-            border: 4px solid var(--primary-color);
-            border-radius: 20px;
+            border: 4px solid var(--success-color);
+            border-radius: var(--border-radius);
             position: relative;
             box-shadow: 0 0 0 1000px var(--overlay-color);
             animation: pulse 2s infinite;
@@ -180,7 +281,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            border-color: var(--primary-color);
+            border-color: var(--success-color);
             border-style: solid;
             border-width: 0;
         }
@@ -205,7 +306,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            border-color: var(--primary-color);
+            border-color: var(--success-color);
             border-style: solid;
             border-width: 0;
             bottom: 0;
@@ -216,7 +317,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            border-color: var(--primary-color);
+            border-color: var(--success-color);
             border-style: solid;
             border-width: 0;
         }
@@ -239,11 +340,11 @@
             position: absolute;
             width: 90%;
             height: 4px;
-            background-color: var(--primary-color);
+            background: linear-gradient(to right, transparent, var(--success-color), transparent);
             top: 10%;
-            animation: scan 3s linear infinite;
+            animation: scan 2.5s linear infinite;
             border-radius: 4px;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+            box-shadow: 0 0 15px rgba(76, 201, 240, 0.8);
         }
 
         .scanner-footer {
@@ -256,6 +357,8 @@
             flex-direction: column;
             align-items: center;
             z-index: 1001;
+            background-color: var(--overlay-color);
+            backdrop-filter: blur(5px);
         }
 
         .scan-hint {
@@ -269,12 +372,13 @@
         .result-container {
             width: 100%;
             max-width: 400px;
-            background-color: var(--overlay-color);
+            background-color: rgba(0, 0, 0, 0.5);
             border-radius: var(--border-radius);
             padding: 15px;
             margin-bottom: 20px;
             color: white;
             display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .result-title {
@@ -283,18 +387,52 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-size: 16px;
         }
 
         .result-content {
             word-break: break-all;
+            font-size: 14px;
+            opacity: 0.9;
         }
 
-        .copy-btn {
-            background: none;
+        .result-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
             border: none;
-            color: var(--primary-color);
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .result-btn i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .result-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .result-btn.primary {
+            background-color: var(--primary-color);
+        }
+
+        .result-btn.primary:hover {
+            background-color: var(--primary-hover);
         }
 
         .error-message {
@@ -302,9 +440,164 @@
             margin-bottom: 20px;
             text-align: center;
             display: none;
+            font-size: 14px;
+            padding: 10px 15px;
+            background-color: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 100%;
         }
 
-        /* Анимации */
+        /* History screen */
+        .history-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .history-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .history-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .history-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+        }
+
+        .history-empty i {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .history-item {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item-content {
+            font-size: 14px;
+            margin-bottom: 10px;
+            word-break: break-all;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-item-date {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .history-item-date i {
+            margin-right: 5px;
+            font-size: 10px;
+        }
+
+        .history-item-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .history-item-btn {
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .history-item-btn i {
+            margin-right: 4px;
+        }
+
+        .history-item-btn.delete {
+            color: var(--danger-color);
+        }
+
+        /* Navigation */
+        .app-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-btn.active {
+            color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -312,7 +605,7 @@
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 1000px var(--overlay-color); }
-            50% { box-shadow: 0 0 0 1000px rgba(76, 175, 80, 0.3); }
+            50% { box-shadow: 0 0 0 1000px rgba(76, 201, 240, 0.3); }
             100% { box-shadow: 0 0 0 1000px var(--overlay-color); }
         }
 
@@ -322,35 +615,40 @@
             100% { top: 10%; }
         }
 
-        /* Эффекты загрузки */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* Адаптивность */
+        /* Loader */
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Responsive */
         @media (max-width: 480px) {
-            .app-container {
+            .app-header {
                 padding: 15px;
             }
             
-            .logo {
+            .app-title {
+                font-size: 20px;
+            }
+            
+            .scanner-icon {
                 width: 100px;
                 height: 100px;
+            }
+            
+            .scanner-icon i {
                 font-size: 40px;
             }
             
-            h1 {
+            .start-title {
                 font-size: 24px;
             }
             
@@ -364,202 +662,391 @@
                 border-width: 3px;
             }
         }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: var(--transition);
+            max-width: 90%;
+        }
+
+        .toast.show {
+            opacity: 1;
+            bottom: 100px;
+        }
+
+        .toast i {
+            margin-right: 10px;
+        }
+
+        /* Confirmation dialog */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .dialog {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .dialog-message {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .dialog-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .dialog-btn.cancel {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        .dialog-btn.confirm {
+            background-color: var(--danger-color);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <!-- Главный экран -->
     <div class="app-container">
-        <div class="start-screen">
-            <div class="logo">HV</div>
-            <h1>Hacker Verifure Scanner</h1>
-            <p class="description">Сканируйте QR-коды для быстрого доступа к информации</p>
-            <button id="startButton" class="btn">
-                <span id="buttonText">Сканировать QR-код</span>
-                <span id="buttonLoader" class="loading" style="display: none;"></span>
-            </button>
-        </div>
-    </div>
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">Pro QR Scanner</h1>
+            <p class="app-subtitle">Сканируйте и сохраняйте QR-коды</p>
+        </header>
 
-    <!-- Экран сканера -->
-    <div class="scanner-screen" id="scannerScreen">
-        <div class="scanner-header">
-            <div class="scanner-title">Сканер QR-кодов</div>
-            <button id="closeButton" class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;">
-                Закрыть
-            </button>
-        </div>
-        
-        <video id="video" playsinline></video>
-        
-        <div class="scan-overlay">
-            <div class="scan-frame">
-                <div class="scan-line"></div>
-                <div class="scan-frame-corner-bottom left"></div>
-                <div class="scan-frame-corner-bottom right"></div>
+        <!-- Main content -->
+        <main class="main-content">
+            <!-- Start screen -->
+            <div class="start-screen" id="startScreen">
+                <div class="scanner-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h2 class="start-title">Сканер QR-кодов</h2>
+                <p class="start-description">Наведите камеру на QR-код для автоматического сканирования и перехода по ссылкам</p>
+                <button id="startButton" class="btn">
+                    <span class="btn-text"><i class="fas fa-camera"></i> Сканировать</span>
+                    <span class="btn-loader loader"></span>
+                </button>
             </div>
-        </div>
-        
-        <div class="scanner-footer">
-            <div class="error-message" id="errorMessage"></div>
-            
-            <div class="result-container" id="resultContainer">
-                <div class="result-title">
-                    <span>Результат сканирования:</span>
-                    <button class="copy-btn" id="copyButton">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
+
+            <!-- History screen -->
+            <div class="history-screen" id="historyScreen">
+                <div class="history-header">
+                    <div class="history-title"><i class="fas fa-history"></i> История сканирований</div>
+                    <button class="history-close" id="historyCloseBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be added here dynamically -->
+                </div>
+                <div class="history-empty" id="historyEmpty">
+                    <i class="fas fa-inbox"></i>
+                    <h3>История пуста</h3>
+                    <p>Здесь будут отображаться все отсканированные QR-коды</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="app-navigation">
+            <button class="nav-btn active" id="scanNavBtn">
+                <i class="fas fa-qrcode"></i>
+                <span>Сканер</span>
+            </button>
+            <button class="nav-btn" id="historyNavBtn">
+                <i class="fas fa-history"></i>
+                <span>История</span>
+            </button>
+            <button class="nav-btn" id="settingsNavBtn">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </button>
+        </nav>
+
+        <!-- Scanner screen -->
+        <div class="scanner-screen" id="scannerScreen">
+            <div class="scanner-header">
+                <div class="scanner-title"><i class="fas fa-qrcode"></i> Сканер QR-кодов</div>
+                <div class="scanner-actions">
+                    <button class="action-btn" id="toggleTorchBtn" title="Фонарик">
+                        <i class="fas fa-lightbulb"></i>
+                    </button>
+                    <button class="action-btn" id="switchCameraBtn" title="Переключить камеру">
+                        <i class="fas fa-camera-retro"></i>
                     </button>
                 </div>
-                <div class="result-content" id="resultContent"></div>
             </div>
             
-            <p class="scan-hint">Наведите камеру на QR-код для сканирования</p>
-            <button id="stopButton" class="btn btn-danger">Остановить сканирование</button>
+            <video id="video" playsinline></video>
+            
+            <div class="scan-overlay">
+                <div class="scan-frame">
+                    <div class="scan-line"></div>
+                    <div class="scan-frame-corner-bottom left"></div>
+                    <div class="scan-frame-corner-bottom right"></div>
+                </div>
+            </div>
+            
+            <div class="scanner-footer">
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="result-container" id="resultContainer">
+                    <div class="result-title">
+                        <span>Результат сканирования:</span>
+                    </div>
+                    <div class="result-content" id="resultContent"></div>
+                    <div class="result-actions">
+                        <button class="result-btn primary" id="openLinkBtn">
+                            <i class="fas fa-external-link-alt"></i> Перейти
+                        </button>
+                        <button class="result-btn" id="copyResultBtn">
+                            <i class="fas fa-copy"></i> Копировать
+                        </button>
+                        <button class="result-btn" id="shareResultBtn">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+                
+                <p class="scan-hint">Наведите камеру на QR-код для автоматического сканирования</p>
+                <button id="stopScannerBtn" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Закрыть сканер
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast notification -->
+        <div class="toast" id="toast">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Скопировано в буфер обмена</span>
+        </div>
+
+        <!-- Confirmation dialog -->
+        <div class="dialog-overlay" id="confirmDialog">
+            <div class="dialog">
+                <div class="dialog-title" id="dialogTitle">Подтверждение</div>
+                <div class="dialog-message" id="dialogMessage">Вы уверены, что хотите удалить эту запись?</div>
+                <div class="dialog-actions">
+                    <button class="dialog-btn cancel" id="dialogCancelBtn">Отмена</button>
+                    <button class="dialog-btn confirm" id="dialogConfirmBtn">Удалить</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Элементы DOM
-        const video = document.getElementById("video");
-        const startButton = document.getElementById("startButton");
-        const stopButton = document.getElementById("stopButton");
-        const closeButton = document.getElementById("closeButton");
-        const scannerScreen = document.getElementById("scannerScreen");
-        const resultContainer = document.getElementById("resultContainer");
-        const resultContent = document.getElementById("resultContent");
-        const errorMessage = document.getElementById("errorMessage");
-        const buttonText = document.getElementById("buttonText");
-        const buttonLoader = document.getElementById("buttonLoader");
-        const copyButton = document.getElementById("copyButton");
-        
-        // Переменные состояния
-        let stream = null;
-        let scanning = false;
-        let animationFrame = null;
-        let lastScannedUrl = '';
+        // DOM Elements
+        const video = document.getElementById('video');
+        const startButton = document.getElementById('startButton');
+        const stopScannerBtn = document.getElementById('stopScannerBtn');
+        const scannerScreen = document.getElementById('scannerScreen');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultContent = document.getElementById('resultContent');
+        const errorMessage = document.getElementById('errorMessage');
+        const openLinkBtn = document.getElementById('openLinkBtn');
+        const copyResultBtn = document.getElementById('copyResultBtn');
+        const shareResultBtn = document.getElementById('shareResultBtn');
+        const toggleTorchBtn = document.getElementById('toggleTorchBtn');
+        const switchCameraBtn = document.getElementById('switchCameraBtn');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const scanNavBtn = document.getElementById('scanNavBtn');
+        const historyNavBtn = document.getElementById('historyNavBtn');
+        const settingsNavBtn = document.getElementById('settingsNavBtn');
+        const startScreen = document.getElementById('startScreen');
+        const historyScreen = document.getElementById('historyScreen');
+        const historyList = document.getElementById('historyList');
+        const historyEmpty = document.getElementById('historyEmpty');
+        const historyCloseBtn = document.getElementById('historyCloseBtn');
+        const confirmDialog = document.getElementById('confirmDialog');
+        const dialogMessage = document.getElementById('dialogMessage');
+        const dialogCancelBtn = document.getElementById('dialogCancelBtn');
+        const dialogConfirmBtn = document.getElementById('dialogConfirmBtn');
 
-        // Проверка поддержки камеры
-        function hasGetUserMedia() {
-            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        // App state
+        let state = {
+            scanning: false,
+            stream: null,
+            animationFrame: null,
+            currentResult: null,
+            torchEnabled: false,
+            facingMode: 'environment',
+            scanHistory: JSON.parse(localStorage.getItem('qrScanHistory')) || [],
+            currentDialog: null,
+            dialogData: null
+        };
+
+        // Initialize the app
+        function init() {
+            setupEventListeners();
+            renderHistory();
+            checkCameraPermissions();
         }
 
-        // Показать ошибку
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
+        // Set up event listeners
+        function setupEventListeners() {
+            // Scanner buttons
+            startButton.addEventListener('click', startScanner);
+            stopScannerBtn.addEventListener('click', stopScanner);
+            openLinkBtn.addEventListener('click', openCurrentLink);
+            copyResultBtn.addEventListener('click', copyCurrentResult);
+            shareResultBtn.addEventListener('click', shareCurrentResult);
+            toggleTorchBtn.addEventListener('click', toggleTorch);
+            switchCameraBtn.addEventListener('click', switchCamera);
+            
+            // Navigation
+            scanNavBtn.addEventListener('click', () => showScreen('start'));
+            historyNavBtn.addEventListener('click', () => showScreen('history'));
+            settingsNavBtn.addEventListener('click', () => showToast('Раздел настроек в разработке'));
+            historyCloseBtn.addEventListener('click', () => showScreen('start'));
+            
+            // Dialog buttons
+            dialogCancelBtn.addEventListener('click', closeDialog);
+            dialogConfirmBtn.addEventListener('click', confirmDialogAction);
+            
+            // Handle visibility changes
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Clean up on page unload
+            window.addEventListener('beforeunload', cleanup);
         }
 
-        // Показать результат
-        function showResult(result) {
-            resultContent.textContent = result;
-            resultContainer.style.display = 'block';
-            lastScannedUrl = result;
-        }
-
-        // Скрыть результат
-        function hideResult() {
-            resultContainer.style.display = 'none';
-        }
-
-        // Проверка URL
-        function isValidUrl(string) {
-            try {
-                new URL(string);
-                return true;
-            } catch (_) {
-                return false;
+        // Show specific screen
+        function showScreen(screen) {
+            startScreen.style.display = screen === 'start' ? 'flex' : 'none';
+            historyScreen.style.display = screen === 'history' ? 'flex' : 'none';
+            
+            // Update navigation buttons
+            scanNavBtn.classList.toggle('active', screen === 'start');
+            historyNavBtn.classList.toggle('active', screen === 'history');
+            settingsNavBtn.classList.toggle('active', false);
+            
+            if (screen === 'history') {
+                renderHistory();
             }
         }
 
-        // Запуск сканера
+        // Start QR scanner
         async function startScanner() {
             if (!hasGetUserMedia()) {
-                showError("Ваш браузер не поддерживает доступ к камере");
+                showError('Ваш браузер не поддерживает доступ к камере');
                 return;
             }
 
-            // Показать индикатор загрузки
-            buttonText.textContent = "Подготовка сканера...";
-            buttonLoader.style.display = 'inline-block';
+            // Show loading state
+            startButton.classList.add('loading');
             startButton.disabled = true;
 
             try {
-                // Запросить доступ к камере
-                stream = await navigator.mediaDevices.getUserMedia({
+                state.stream = await navigator.mediaDevices.getUserMedia({
                     video: { 
-                        facingMode: "environment",
+                        facingMode: state.facingMode,
                         width: { ideal: 1920 },
                         height: { ideal: 1080 }
                     }
                 });
                 
-                // Показать экран сканера
                 scannerScreen.style.display = 'flex';
-                video.srcObject = stream;
+                video.srcObject = state.stream;
                 
-                // Дождаться загрузки видео
+                // Wait for video to load
                 await new Promise((resolve) => {
                     video.onloadedmetadata = resolve;
                 });
                 
                 await video.play();
                 
-                // Обновить UI
-                buttonText.textContent = "Сканировать QR-код";
-                buttonLoader.style.display = 'none';
-                startButton.disabled = false;
-                
-                // Начать сканирование
-                scanning = true;
+                // Start scanning
+                state.scanning = true;
                 hideResult();
                 scanQRCode();
             } catch (err) {
-                console.error("Ошибка доступа к камере:", err);
+                console.error('Camera error:', err);
                 showError(`Ошибка: ${err.message}`);
                 stopScanner();
-                
-                // Восстановить кнопку
-                buttonText.textContent = "Сканировать QR-код";
-                buttonLoader.style.display = 'none';
+            } finally {
+                // Restore button state
+                startButton.classList.remove('loading');
                 startButton.disabled = false;
             }
         }
 
-        // Остановка сканера
+        // Stop scanner
         function stopScanner() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+                state.stream = null;
             }
             
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
+            if (state.animationFrame) {
+                cancelAnimationFrame(state.animationFrame);
+                state.animationFrame = null;
             }
             
             video.srcObject = null;
-            scanning = false;
-        }
-
-        // Закрытие сканера
-        function closeScanner() {
-            stopScanner();
+            state.scanning = false;
             scannerScreen.style.display = 'none';
             hideResult();
+            
+            // Turn off torch if enabled
+            if (state.torchEnabled) {
+                toggleTorch(false);
+            }
         }
 
-        // Сканирование QR-кода
+        // Scan for QR codes
         function scanQRCode() {
-            if (!scanning) return;
+            if (!state.scanning) return;
             
             try {
-                const canvas = document.createElement("canvas");
-                const context = canvas.getContext("2d");
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
                 
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
                     canvas.width = video.videoWidth;
@@ -568,72 +1055,332 @@
                     
                     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: "dontInvert",
+                        inversionAttempts: 'dontInvert',
                     });
                     
                     if (code) {
-                        showResult(code.data);
-                        
-                        // Если это URL, открыть после небольшой задержки
-                        if (isValidUrl(code.data)) {
-                            setTimeout(() => {
-                                window.open(code.data, "_blank");
-                                closeScanner();
-                            }, 1000);
-                        }
+                        handleScannedCode(code.data);
                     }
                 }
             } catch (err) {
-                console.error("Ошибка при сканировании:", err);
+                console.error('Scanning error:', err);
             }
             
-            animationFrame = requestAnimationFrame(scanQRCode);
+            state.animationFrame = requestAnimationFrame(scanQRCode);
         }
 
-        // Копирование результата
-        function copyResult() {
-            if (!lastScannedUrl) return;
+        // Handle scanned QR code
+        function handleScannedCode(data) {
+            // Avoid processing the same code multiple times
+            if (state.currentResult === data) return;
             
-            navigator.clipboard.writeText(lastScannedUrl)
+            state.currentResult = data;
+            showResult(data);
+            addToHistory(data);
+            
+            // If it's a valid URL, open it automatically
+            if (isValidUrl(data)) {
+                setTimeout(() => {
+                    window.open(data, '_blank');
+                    stopScanner();
+                }, 800);
+            }
+        }
+
+        // Show scan result
+        function showResult(result) {
+            resultContent.textContent = result;
+            resultContainer.style.display = 'block';
+            
+            // Show/hide appropriate buttons
+            openLinkBtn.style.display = isValidUrl(result) ? 'flex' : 'none';
+        }
+
+        // Hide result
+        function hideResult() {
+            resultContainer.style.display = 'none';
+            state.currentResult = null;
+        }
+
+        // Open current link
+        function openCurrentLink() {
+            if (state.currentResult && isValidUrl(state.currentResult)) {
+                window.open(state.currentResult, '_blank');
+            } else {
+                showError('Недействительная ссылка');
+            }
+        }
+
+        // Copy current result
+        function copyCurrentResult() {
+            if (!state.currentResult) return;
+            
+            navigator.clipboard.writeText(state.currentResult)
                 .then(() => {
-                    const originalText = copyButton.innerHTML;
-                    copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                    
-                    setTimeout(() => {
-                        copyButton.innerHTML = originalText;
-                    }, 2000);
+                    showToast('Скопировано в буфер обмена');
                 })
                 .catch(err => {
-                    console.error("Не удалось скопировать:", err);
-                    showError("Не удалось скопировать");
+                    console.error('Copy failed:', err);
+                    showError('Не удалось скопировать');
                 });
         }
 
-        // Обработчики событий
-        startButton.addEventListener("click", startScanner);
-        stopButton.addEventListener("click", closeScanner);
-        closeButton.addEventListener("click", closeScanner);
-        copyButton.addEventListener("click", copyResult);
+        // Share current result
+        async function shareCurrentResult() {
+            if (!state.currentResult) return;
+            
+            try {
+                if (navigator.share) {
+                    await navigator.share({
+                        title: 'QR-код',
+                        text: 'Я отсканировал QR-код:',
+                        url: isValidUrl(state.currentResult) ? state.currentResult : undefined
+                    });
+                } else {
+                    copyCurrentResult();
+                    showToast('Ссылка скопирована (шаринг не поддерживается)');
+                }
+            } catch (err) {
+                console.error('Share failed:', err);
+            }
+        }
 
-        // Очистка при закрытии страницы
-        window.addEventListener("beforeunload", () => {
+        // Toggle torch
+        function toggleTorch(forceOff) {
+            if (!state.stream) return;
+            
+            const videoTrack = state.stream.getVideoTracks()[0];
+            if (!videoTrack || !('applyConstraints' in videoTrack)) {
+                showToast('Фонарик не поддерживается');
+                return;
+            }
+            
+            state.torchEnabled = forceOff ? false : !state.torchEnabled;
+            
+            videoTrack.applyConstraints({
+                advanced: [{ torch: state.torchEnabled }]
+            }).then(() => {
+                toggleTorchBtn.innerHTML = state.torchEnabled ? 
+                    '<i class="fas fa-lightbulb" style="color: yellow;"></i>' : 
+                    '<i class="fas fa-lightbulb"></i>';
+            }).catch(err => {
+                console.error('Torch error:', err);
+                state.torchEnabled = false;
+                showToast('Фонарик не доступен');
+            });
+        }
+
+        // Switch camera
+        function switchCamera() {
+            state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
             stopScanner();
-        });
+            startScanner();
+        }
 
-        // Проверка разрешений камеры при загрузке
-        window.addEventListener("DOMContentLoaded", async () => {
+        // Add scanned code to history
+        function addToHistory(data) {
+            // Avoid duplicates
+            if (state.scanHistory.some(item => item.data === data)) return;
+            
+            const newItem = {
+                data: data,
+                date: new Date().toISOString(),
+                isUrl: isValidUrl(data)
+            };
+            
+            state.scanHistory.unshift(newItem);
+            
+            // Keep only last 50 items
+            if (state.scanHistory.length > 50) {
+                state.scanHistory.pop();
+            }
+            
+            saveHistory();
+            renderHistory();
+        }
+
+        // Save history to localStorage
+        function saveHistory() {
+            localStorage.setItem('qrScanHistory', JSON.stringify(state.scanHistory));
+        }
+
+        // Render history list
+        function renderHistory() {
+            historyList.innerHTML = '';
+            
+            if (state.scanHistory.length === 0) {
+                historyEmpty.style.display = 'flex';
+                return;
+            }
+            
+            historyEmpty.style.display = 'none';
+            
+            state.scanHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                historyItem.innerHTML = `
+                    <div class="history-item-content">${item.data}</div>
+                    <div class="history-item-date">
+                        <i class="far fa-clock"></i> ${formattedDate}
+                    </div>
+                    <div class="history-item-actions">
+                        <button class="history-item-btn" data-action="copy" data-index="${index}">
+                            <i class="far fa-copy"></i> Копировать
+                        </button>
+                        ${item.isUrl ? `
+                        <button class="history-item-btn" data-action="open" data-index="${index}">
+                            <i class="fas fa-external-link-alt"></i> Перейти
+                        </button>
+                        ` : ''}
+                        <button class="history-item-btn delete" data-action="delete" data-index="${index}">
+                            <i class="far fa-trash-alt"></i> Удалить
+                        </button>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+            
+            // Add event listeners to history items
+            document.querySelectorAll('.history-item-btn').forEach(btn => {
+                btn.addEventListener('click', handleHistoryAction);
+            });
+        }
+
+        // Handle history item actions
+        function handleHistoryAction(e) {
+            const action = e.currentTarget.getAttribute('data-action');
+            const index = parseInt(e.currentTarget.getAttribute('data-index'));
+            const item = state.scanHistory[index];
+            
+            switch (action) {
+                case 'copy':
+                    navigator.clipboard.writeText(item.data)
+                        .then(() => showToast('Скопировано в буфер обмена'))
+                        .catch(() => showError('Не удалось скопировать'));
+                    break;
+                    
+                case 'open':
+                    if (item.isUrl) {
+                        window.open(item.data, '_blank');
+                    }
+                    break;
+                    
+                case 'delete':
+                    showConfirmDialog(
+                        'Удалить запись?',
+                        'Вы уверены, что хотите удалить эту запись из истории?',
+                        () => {
+                            state.scanHistory.splice(index, 1);
+                            saveHistory();
+                            renderHistory();
+                            showToast('Запись удалена');
+                        }
+                    );
+                    break;
+            }
+        }
+
+        // Show confirmation dialog
+        function showConfirmDialog(title, message, confirmCallback) {
+            document.getElementById('dialogTitle').textContent = title;
+            dialogMessage.textContent = message;
+            
+            state.currentDialog = {
+                confirmCallback: confirmCallback
+            };
+            
+            confirmDialog.style.display = 'flex';
+        }
+
+        // Close dialog
+        function closeDialog() {
+            confirmDialog.style.display = 'none';
+            state.currentDialog = null;
+        }
+
+        // Confirm dialog action
+        function confirmDialogAction() {
+            if (state.currentDialog && state.currentDialog.confirmCallback) {
+                state.currentDialog.confirmCallback();
+            }
+            closeDialog();
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Check if string is a valid URL
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Check camera permissions
+        async function checkCameraPermissions() {
             try {
                 const permissionStatus = await navigator.permissions.query({ name: 'camera' });
                 
                 permissionStatus.onchange = () => {
                     if (permissionStatus.state === 'denied') {
-                        showError("Доступ к камере запрещен. Разрешите доступ в настройках браузера.");
+                        showError('Доступ к камере запрещен. Разрешите доступ в настройках браузера.');
                     }
                 };
             } catch (err) {
-                console.log("API Permissions не поддерживается в этом браузере");
+                console.log('Permissions API not supported');
             }
-        });
+        }
+
+        // Check for camera support
+        function hasGetUserMedia() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        }
+
+        // Handle visibility changes
+        function handleVisibilityChange() {
+            if (document.hidden && state.scanning) {
+                stopScanner();
+            }
+        }
+
+        // Clean up resources
+        function cleanup() {
+            stopScanner();
+        }
+
+        // Initialize the app
+        init();
     </script>
 </body>
 </html>
