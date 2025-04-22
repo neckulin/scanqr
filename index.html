@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            margin: 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            background-color: black;
+        }
+        .scan-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            border: 3px solid #4CAF50;
+            border-radius: 5px;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            word-break: break-all;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Scanner</h1>
+        <div class="scanner-container">
+            <video id="video" playsinline></video>
+            <div class="scan-box"></div>
+        </div>
+        <div id="error" class="error"></div>
+        <div class="result" id="result">Scan a QR code to see the result...</div>
+        <div class="controls">
+            <button id="startButton">Start Scanner</button>
+            <button id="stopButton" disabled>Stop Scanner</button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById("video");
+        const startButton = document.getElementById("startButton");
+        const stopButton = document.getElementById("stopButton");
+        const resultElement = document.getElementById("result");
+        const errorElement = document.getElementById("error");
+        
+        let stream = null;
+        let scanning = false;
+        let animationFrame = null;
+
+        // Check for camera support
+        function hasGetUserMedia() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        }
+
+        // Start the scanner
+        async function startScanner() {
+            if (!hasGetUserMedia()) {
+                errorElement.textContent = "Your browser doesn't support camera access.";
+                return;
+            }
+
+            errorElement.textContent = "";
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+                video.srcObject = stream;
+                video.play();
+                
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                scanning = true;
+                
+                scanQRCode();
+            } catch (err) {
+                errorElement.textContent = `Error accessing camera: ${err.message}`;
+                console.error(err);
+            }
+        }
+
+        // Stop the scanner
+        function stopScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            
+            video.srcObject = null;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            scanning = false;
+            resultElement.textContent = "Scan a QR code to see the result...";
+        }
+
+        // Scan for QR codes
+        function scanQRCode() {
+            if (!scanning) return;
+            
+            const canvasElement = document.createElement("canvas");
+            const canvas = canvasElement.getContext("2d");
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                
+                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                
+                if (code) {
+                    resultElement.textContent = `Found QR code: ${code.data}`;
+                    stopScanner();
+                    
+                    // Open the URL if it's a valid URL
+                    if (isValidUrl(code.data)) {
+                        window.open(code.data, "_blank");
+                    }
+                }
+            }
+            
+            animationFrame = requestAnimationFrame(scanQRCode);
+        }
+
+        // Check if a string is a valid URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Event listeners
+        startButton.addEventListener("click", startScanner);
+        stopButton.addEventListener("click", stopScanner);
+
+        // Clean up when page is closed
+        window.addEventListener("beforeunload", () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
