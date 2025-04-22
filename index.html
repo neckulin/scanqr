@@ -3,59 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Простой QR Сканер</title>
+    <title>QR Scanner iOS</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --danger-color: #f72585;
-            --text-color: #2b2d42;
-            --light-color: #f8f9fa;
+            --primary: #007AFF;
+            --danger: #FF3B30;
+            --background: #F2F2F7;
+            --card: #FFFFFF;
+            --text: #1C1C1E;
+            --secondary-text: #8E8E93;
+            --border: #D1D1D6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--light-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            padding-bottom: 80px;
         }
 
         .container {
-            width: 100%;
             max-width: 500px;
-            text-align: center;
+            margin: 0 auto;
             padding: 20px;
         }
 
         h1 {
-            color: var(--primary-color);
-            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
         }
 
         .btn {
-            padding: 15px 30px;
-            background-color: var(--primary-color);
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 500;
+            text-align: center;
             cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        .btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
         }
 
         .btn-danger {
-            background-color: var(--danger-color);
+            background-color: var(--danger);
         }
 
         .scanner-container {
@@ -83,69 +94,183 @@
             width: 100%;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.7);
-            color: white;
+            backdrop-filter: blur(20px);
             text-align: center;
         }
 
-        .error-message {
-            color: #ff6b6b;
-            margin: 10px 0;
+        .history {
+            background-color: var(--card);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-title {
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--secondary-text);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-content {
+            flex: 1;
+            margin-right: 12px;
+            word-break: break-all;
+        }
+
+        .history-date {
+            font-size: 13px;
+            color: var(--secondary-text);
+            margin-top: 4px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .history-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--background);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .history-btn i {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        .history-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--secondary-text);
+        }
+
+        .result-container {
+            background-color: var(--card);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
             display: none;
         }
 
-        .result {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
+        .result-text {
             word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .error-message {
+            color: var(--danger);
+            padding: 12px;
+            text-align: center;
             display: none;
+            margin-bottom: 16px;
+            background-color: rgba(255, 59, 48, 0.1);
+            border-radius: 10px;
+        }
+
+        /* iOS-style icons */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>QR Сканер</h1>
-        <button id="startButton" class="btn">Начать сканирование</button>
+        
+        <button id="startButton" class="btn">
+            <svg class="icon" viewBox="0 0 24 24" style="margin-right: 8px; vertical-align: middle;">
+                <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"></path>
+            </svg>
+            Начать сканирование
+        </button>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="result-text" id="resultText"></div>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="history">
+            <div class="history-title">История сканирований</div>
+            <div id="historyList"></div>
+            <div class="history-empty" id="historyEmpty">Здесь будут отображаться ваши QR-коды</div>
+        </div>
     </div>
 
     <div class="scanner-container" id="scannerContainer">
         <video id="video" playsinline></video>
         <div class="scanner-footer">
-            <div class="error-message" id="errorMessage"></div>
-            <div class="result" id="result"></div>
-            <button id="stopButton" class="btn btn-danger">Закрыть сканер</button>
+            <button id="stopButton" class="btn btn-danger">Закрыть</button>
         </div>
     </div>
 
     <script>
+        // DOM элементы
         const video = document.getElementById('video');
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const scannerContainer = document.getElementById('scannerContainer');
-        const resultElement = document.getElementById('result');
-        const errorElement = document.getElementById('errorMessage');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const errorMessage = document.getElementById('errorMessage');
+        const historyList = document.getElementById('historyList');
+        const historyEmpty = document.getElementById('historyEmpty');
         
+        // Состояние приложения
         let stream = null;
         let scanning = false;
         let animationFrame = null;
-
-        // Проверка поддержки камеры
-        function hasGetUserMedia() {
-            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        let scanHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
+        
+        // Инициализация
+        function init() {
+            renderHistory();
+            setupEventListeners();
         }
-
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            startButton.addEventListener('click', startScanner);
+            stopButton.addEventListener('click', stopScanner);
+        }
+        
         // Запуск сканера
         async function startScanner() {
             if (!hasGetUserMedia()) {
                 showError("Ваш браузер не поддерживает доступ к камере");
                 return;
             }
-
+            
             try {
                 scannerContainer.style.display = 'flex';
-                errorElement.style.display = 'none';
-                resultElement.style.display = 'none';
+                hideResult();
+                hideError();
                 
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: "environment" }
@@ -161,7 +286,7 @@
                 stopScanner();
             }
         }
-
+        
         // Остановка сканера
         function stopScanner() {
             if (stream) {
@@ -178,7 +303,7 @@
             scanning = false;
             scannerContainer.style.display = 'none';
         }
-
+        
         // Сканирование QR-кода
         function scanQRCode() {
             if (!scanning) return;
@@ -195,33 +320,150 @@
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 
                 if (code) {
-                    showResult(code.data);
-                    
-                    // Если это URL, открываем автоматически
-                    if (isValidUrl(code.data)) {
-                        setTimeout(() => {
-                            window.open(code.data, '_blank');
-                            stopScanner();
-                        }, 800);
-                    }
+                    handleScannedCode(code.data);
                 }
             }
             
             animationFrame = requestAnimationFrame(scanQRCode);
         }
-
-        // Показать результат
-        function showResult(result) {
-            resultElement.textContent = result;
-            resultElement.style.display = 'block';
+        
+        // Обработка отсканированного кода
+        function handleScannedCode(data) {
+            showResult(data);
+            addToHistory(data);
+            
+            if (isValidUrl(data)) {
+                setTimeout(() => {
+                    window.open(data, '_blank');
+                    stopScanner();
+                }, 800);
+            }
         }
-
+        
+        // Добавление в историю
+        function addToHistory(data) {
+            // Проверка на дубликаты
+            if (scanHistory.some(item => item.data === data)) return;
+            
+            scanHistory.unshift({
+                data: data,
+                date: new Date().toISOString(),
+                isUrl: isValidUrl(data)
+            });
+            
+            // Ограничение истории 20 записями
+            if (scanHistory.length > 20) {
+                scanHistory.pop();
+            }
+            
+            saveHistory();
+            renderHistory();
+        }
+        
+        // Сохранение истории
+        function saveHistory() {
+            localStorage.setItem('qrHistory', JSON.stringify(scanHistory));
+        }
+        
+        // Отображение истории
+        function renderHistory() {
+            historyList.innerHTML = '';
+            
+            if (scanHistory.length === 0) {
+                historyEmpty.style.display = 'block';
+                return;
+            }
+            
+            historyEmpty.style.display = 'none';
+            
+            scanHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleString('ru-RU', {
+                    day: 'numeric',
+                    month: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                historyItem.innerHTML = `
+                    <div class="history-content">
+                        <div>${item.data}</div>
+                        <div class="history-date">${formattedDate}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-btn" onclick="copyHistoryItem(${index})">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path>
+                            </svg>
+                        </button>
+                        ${item.isUrl ? `
+                        <button class="history-btn" onclick="openHistoryItem(${index})">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>
+                            </svg>
+                        </button>
+                        ` : ''}
+                        <button class="history-btn" onclick="deleteHistoryItem(${index})">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Копирование из истории
+        function copyHistoryItem(index) {
+            navigator.clipboard.writeText(scanHistory[index].data)
+                .then(() => alert('Скопировано в буфер обмена'))
+                .catch(() => showError('Не удалось скопировать'));
+        }
+        
+        // Открытие ссылки из истории
+        function openHistoryItem(index) {
+            if (scanHistory[index].isUrl) {
+                window.open(scanHistory[index].data, '_blank');
+            }
+        }
+        
+        // Удаление из истории
+        function deleteHistoryItem(index) {
+            if (confirm('Удалить эту запись из истории?')) {
+                scanHistory.splice(index, 1);
+                saveHistory();
+                renderHistory();
+            }
+        }
+        
+        // Показать результат
+        function showResult(text) {
+            resultText.textContent = text;
+            resultContainer.style.display = 'block';
+        }
+        
+        // Скрыть результат
+        function hideResult() {
+            resultContainer.style.display = 'none';
+        }
+        
         // Показать ошибку
         function showError(message) {
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
         }
-
+        
+        // Скрыть ошибку
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+        
         // Проверка URL
         function isValidUrl(string) {
             try {
@@ -231,15 +473,19 @@
                 return false;
             }
         }
-
-        // Обработчики событий
-        startButton.addEventListener('click', startScanner);
-        stopButton.addEventListener('click', stopScanner);
-
-        // Очистка при закрытии страницы
+        
+        // Проверка поддержки камеры
+        function hasGetUserMedia() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        }
+        
+        // Очистка при закрытии
         window.addEventListener('beforeunload', () => {
             stopScanner();
         });
+        
+        // Инициализация приложения
+        init();
     </script>
 </body>
 </html>
