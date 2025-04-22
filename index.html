@@ -69,6 +69,11 @@
             background-color: var(--danger);
         }
 
+        .btn-secondary {
+            background-color: var(--background);
+            color: var(--primary);
+        }
+
         .scanner-container {
             position: fixed;
             top: 0;
@@ -197,6 +202,89 @@
             stroke: currentColor;
             fill: currentColor;
         }
+
+        /* iOS-style popup */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .popup-container {
+            width: 270px;
+            background-color: var(--card);
+            border-radius: 14px;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup-overlay.active .popup-container {
+            transform: scale(1);
+        }
+
+        .popup-title {
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .popup-message {
+            padding: 16px;
+            font-size: 13px;
+            color: var(--secondary-text);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .popup-actions {
+            display: flex;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .popup-btn:active {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .popup-btn-cancel {
+            color: var(--primary);
+            border-right: 1px solid var(--border);
+        }
+
+        .popup-btn-delete {
+            color: var(--danger);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -230,6 +318,18 @@
         </div>
     </div>
 
+    <!-- iOS-style popup for delete confirmation -->
+    <div class="popup-overlay" id="deletePopup">
+        <div class="popup-container">
+            <div class="popup-title">Удалить запись?</div>
+            <div class="popup-message">Эта запись будет удалена из истории.</div>
+            <div class="popup-actions">
+                <button class="popup-btn popup-btn-cancel" id="cancelDeleteBtn">Отмена</button>
+                <button class="popup-btn popup-btn-delete" id="confirmDeleteBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // DOM элементы
         const video = document.getElementById('video');
@@ -241,12 +341,16 @@
         const errorMessage = document.getElementById('errorMessage');
         const historyList = document.getElementById('historyList');
         const historyEmpty = document.getElementById('historyEmpty');
+        const deletePopup = document.getElementById('deletePopup');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         
         // Состояние приложения
         let stream = null;
         let scanning = false;
         let animationFrame = null;
         let scanHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
+        let currentDeleteIndex = null;
         
         // Инициализация
         function init() {
@@ -258,6 +362,8 @@
         function setupEventListeners() {
             startButton.addEventListener('click', startScanner);
             stopButton.addEventListener('click', stopScanner);
+            cancelDeleteBtn.addEventListener('click', hideDeletePopup);
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
         }
         
         // Запуск сканера
@@ -336,7 +442,7 @@
                 setTimeout(() => {
                     window.open(data, '_blank');
                     stopScanner();
-                }, 300);
+                }, 800);
             }
         }
         
@@ -407,7 +513,7 @@
                             </svg>
                         </button>
                         ` : ''}
-                        <button class="history-btn" onclick="deleteHistoryItem(${index})">
+                        <button class="history-btn" onclick="showDeletePopup(${index})">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"></path>
                             </svg>
@@ -417,6 +523,28 @@
                 
                 historyList.appendChild(historyItem);
             });
+        }
+        
+        // Показать попап удаления
+        function showDeletePopup(index) {
+            currentDeleteIndex = index;
+            deletePopup.classList.add('active');
+        }
+        
+        // Скрыть попап удаления
+        function hideDeletePopup() {
+            deletePopup.classList.remove('active');
+            currentDeleteIndex = null;
+        }
+        
+        // Подтверждение удаления
+        function confirmDelete() {
+            if (currentDeleteIndex !== null) {
+                scanHistory.splice(currentDeleteIndex, 1);
+                saveHistory();
+                renderHistory();
+                hideDeletePopup();
+            }
         }
         
         // Копирование из истории
@@ -430,15 +558,6 @@
         function openHistoryItem(index) {
             if (scanHistory[index].isUrl) {
                 window.open(scanHistory[index].data, '_blank');
-            }
-        }
-        
-        // Удаление из истории
-        function deleteHistoryItem(index) {
-            if (confirm('Удалить эту запись из истории?')) {
-                scanHistory.splice(index, 1);
-                saveHistory();
-                renderHistory();
             }
         }
         
